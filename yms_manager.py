@@ -73,8 +73,9 @@ class YmsManager:
         self.toolhead_detected = False
         self._toolhead_obj = None
 
-        # Cutter
-        self.cutter_available = False
+        # Cutter — declared in [yms_manager] config, not auto-detected
+        # It's a hardware tool activated by moving to a position
+        self.cutter_available = config.getboolean('cutter', False)
         self.cutter_enabled = False
 
         # Internal refs
@@ -105,12 +106,6 @@ class YmsManager:
 
     def _handle_ready(self):
         """Auto-detect YMS slots from printer.cfg at startup."""
-        try:
-            self._handle_ready_inner()
-        except Exception as e:
-            logging.exception("YMS Manager: _handle_ready FAILED: %s", e)
-
-    def _handle_ready_inner(self):
         self._save_variables = self.printer.lookup_object('save_variables', None)
         self._print_stats = self.printer.lookup_object('print_stats', None)
 
@@ -128,10 +123,7 @@ class YmsManager:
         # 3. Detect toolhead switch
         self._detect_toolhead()
 
-        # 4. Detect cutter
-        self._detect_cutter()
-
-        # 5. Init slot arrays with defaults
+        # 4. Init slot arrays with defaults
         self._init_slots()
 
         # 6. Load persisted data (colors, mapping, cutter state)
@@ -160,19 +152,10 @@ class YmsManager:
         count = 0
         for i in range(12):
             section = 'extruder_stepper extruder%d' % i
-            obj = self.printer.lookup_object(section, None)
-            if obj is not None:
+            if self.printer.lookup_object(section, None) is not None:
                 count += 1
-                logging.info("YMS Manager: found %s", section)
             else:
-                # Also try via config sections
-                try:
-                    config_obj = self.config.fileconfig.has_section(section)
-                    logging.info("YMS Manager: lookup_object failed for %s, config has_section=%s", section, config_obj)
-                except Exception:
-                    pass
                 break
-        logging.info("YMS Manager: detected %d extruder_stepper sections", count)
         return count
 
     def _detect_sensors(self):
@@ -206,21 +189,6 @@ class YmsManager:
                 self._toolhead_obj = obj
                 return
 
-    def _detect_cutter(self):
-        """Detect cutter availability (servo or dedicated macro)."""
-        # Check for cutter servo
-        obj = self.printer.lookup_object('servo cutter', None)
-        if obj:
-            self.cutter_available = True
-            return
-        # Check for cutter macro
-        obj = self.printer.lookup_object('gcode_macro CUT_FILAMENT', None)
-        if not obj:
-            obj = self.printer.lookup_object('gcode_macro _MMU_CUT_TIP', None)
-        if not obj:
-            obj = self.printer.lookup_object('gcode_macro CUTTER', None)
-        if obj:
-            self.cutter_available = True
 
     # ── Slot initialization ─────────────────────────────────────────────
 
