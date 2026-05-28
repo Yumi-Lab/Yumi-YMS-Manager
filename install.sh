@@ -1,0 +1,112 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════
+# YMS Manager — YUMiLab Multi-Color System
+# Installer / Updater
+#
+# Links yms_manager.py into Klipper extras and configures Moonraker
+# update manager for OTA updates.
+#
+# Usage:
+#   ./install.sh          Install / Update
+#   ./install.sh -d       Uninstall
+# ═══════════════════════════════════════════════════════════════════════
+set -e
+
+SRCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KLIPPER_HOME="${KLIPPER_HOME:-${HOME}/klipper}"
+CONFIG_HOME="${CONFIG_HOME:-${HOME}/printer_data/config}"
+MOONRAKER_CONF="${CONFIG_HOME}/moonraker.conf"
+PRINTER_CFG="${CONFIG_HOME}/printer.cfg"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+info()  { echo -e "${GREEN}[YMS]${NC} $1"; }
+warn()  { echo -e "${YELLOW}[YMS]${NC} $1"; }
+error() { echo -e "${RED}[YMS]${NC} $1"; }
+
+# ── Uninstall ──────────────────────────────────────────────────────────
+
+uninstall() {
+    info "Uninstalling YMS Manager..."
+
+    # Remove Klipper symlink
+    if [ -L "${KLIPPER_HOME}/klippy/extras/yms_manager.py" ]; then
+        rm -f "${KLIPPER_HOME}/klippy/extras/yms_manager.py"
+        info "Removed Klipper module symlink"
+    fi
+
+    # Remove Moonraker update manager entry
+    if [ -f "${MOONRAKER_CONF}" ]; then
+        sed -i '/\[update_manager Yumi-YMS-Manager\]/,/^$/d' "${MOONRAKER_CONF}"
+        info "Removed update manager from moonraker.conf"
+    fi
+
+    info "Uninstall complete."
+    info "Manually remove [yms_manager] from printer.cfg if present."
+    exit 0
+}
+
+# ── Parse args ─────────────────────────────────────────────────────────
+
+if [ "$1" = "-d" ]; then
+    uninstall
+fi
+
+# ── Verify ─────────────────────────────────────────────────────────────
+
+if [ ! -d "${KLIPPER_HOME}/klippy/extras" ]; then
+    error "Klipper not found at ${KLIPPER_HOME}"
+    exit 1
+fi
+
+# ── Install ────────────────────────────────────────────────────────────
+
+echo ""
+echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}  YMS Manager — YUMiLab Multi-Color System${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
+echo ""
+
+# 1. Link module into Klipper extras
+info "Linking yms_manager.py to Klipper extras..."
+ln -sf "${SRCDIR}/yms_manager.py" "${KLIPPER_HOME}/klippy/extras/yms_manager.py"
+info "  → ${KLIPPER_HOME}/klippy/extras/yms_manager.py"
+
+# 2. Add [yms_manager] section to printer.cfg if not present
+if [ -f "${PRINTER_CFG}" ]; then
+    if ! grep -q '^\[yms_manager\]' "${PRINTER_CFG}"; then
+        echo -e "\n[yms_manager]" >> "${PRINTER_CFG}"
+        info "Added [yms_manager] section to printer.cfg"
+    else
+        info "[yms_manager] already in printer.cfg"
+    fi
+fi
+
+# 3. Add Moonraker update manager for OTA
+if [ -f "${MOONRAKER_CONF}" ]; then
+    if ! grep -q 'update_manager Yumi-YMS-Manager' "${MOONRAKER_CONF}"; then
+        cat >> "${MOONRAKER_CONF}" << 'UPDMGR'
+
+[update_manager Yumi-YMS-Manager]
+type: git_repo
+path: ~/Yumi-YMS-Manager
+origin: https://github.com/Yumi-Lab/Yumi-YMS-Manager.git
+primary_branch: main
+managed_services: klipper
+install_script: install.sh
+UPDMGR
+        info "Added OTA update manager to moonraker.conf"
+    else
+        info "Update manager already in moonraker.conf"
+    fi
+fi
+
+# ── Done ───────────────────────────────────────────────────────────────
+
+echo ""
+info "Installation complete!"
+info "Restart Klipper to activate: sudo systemctl restart klipper"
+echo ""
