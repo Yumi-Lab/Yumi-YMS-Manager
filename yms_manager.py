@@ -151,11 +151,11 @@ class YmsManager:
 
     def _detect_steppers(self):
         """Count [extruder_stepper extruder0..11] in printer.cfg."""
-        configfile = self.printer.lookup_object('configfile')
-        settings = configfile.get_status(0).get('settings', {})
         count = 0
         for i in range(12):
-            if 'extruder_stepper extruder%d' % i in settings:
+            section = 'extruder_stepper extruder%d' % i
+            obj = self.printer.lookup_object(section, None)
+            if obj is not None:
                 count += 1
             else:
                 break
