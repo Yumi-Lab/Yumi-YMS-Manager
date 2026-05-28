@@ -105,6 +105,12 @@ class YmsManager:
 
     def _handle_ready(self):
         """Auto-detect YMS slots from printer.cfg at startup."""
+        try:
+            self._handle_ready_inner()
+        except Exception as e:
+            logging.exception("YMS Manager: _handle_ready FAILED: %s", e)
+
+    def _handle_ready_inner(self):
         self._save_variables = self.printer.lookup_object('save_variables', None)
         self._print_stats = self.printer.lookup_object('print_stats', None)
 
@@ -157,8 +163,16 @@ class YmsManager:
             obj = self.printer.lookup_object(section, None)
             if obj is not None:
                 count += 1
+                logging.info("YMS Manager: found %s", section)
             else:
+                # Also try via config sections
+                try:
+                    config_obj = self.config.fileconfig.has_section(section)
+                    logging.info("YMS Manager: lookup_object failed for %s, config has_section=%s", section, config_obj)
+                except Exception:
+                    pass
                 break
+        logging.info("YMS Manager: detected %d extruder_stepper sections", count)
         return count
 
     def _detect_sensors(self):
