@@ -60,44 +60,44 @@
     const style = document.createElement('style');
     style.id = 'yms-styles';
     style.textContent = `
-      #yms-root { display:none; position:fixed; top:48px; left:256px; right:0; bottom:0; z-index:100; background:#1a1a2e; overflow-y:auto; padding:16px; font-family:'Segoe UI',system-ui,sans-serif; color:#e0e0e0; }
+      #yms-root { display:none; position:fixed; top:48px; left:256px; right:0; bottom:0; z-index:100; background:rgb(18,18,18); overflow-y:auto; padding:16px; font-family:Roboto,sans-serif; color:rgba(255,255,255,.87); }
       #yms-root.yms-show { display:block; }
       #yms-root .yms-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
       #yms-root .yms-hdr h2 { font-size:16px; font-weight:600; color:#fff; margin:0; }
       #yms-root .yms-badge { font-size:11px; padding:3px 10px; border-radius:10px; font-weight:500; }
-      .yms-b-ready { background:#1b5e20; color:#81c784; }
-      .yms-b-print { background:#e65100; color:#ffcc80; }
-      .yms-b-off { background:#424242; color:#bdbdbd; }
+      .yms-b-ready { background:#1b5e20; color:#4caf50; }
+      .yms-b-print { background:#e65100; color:#fb8c00; }
+      .yms-b-off { background:#424242; color:rgba(255,255,255,.5); }
       #yms-root .yms-svg { width:100%; max-width:900px; margin:0 auto; display:block; }
-      .slot-card { fill:#222840; stroke:#3a3a5a; stroke-width:1; }
-      .slot-card-act { fill:#1a3050; stroke:#5c9ce6; stroke-width:2; }
-      .ms-detected { fill:#4CAF50; } .ms-empty { fill:#444; } .ms-unknown { fill:#FF9800; } .ms-blocked { fill:#F44336; }
-      .ms-lbl { fill:#ddd; font-size:6px; font-family:system-ui; text-anchor:middle; dominant-baseline:central; }
-      .gear-on { fill:#4CAF50; } .gear-off { fill:#333; }
-      .gear-ico { fill:#ccc; font-size:9px; text-anchor:middle; dominant-baseline:central; }
+      .slot-card { fill:rgb(30,30,30); stroke:rgba(255,255,255,.12); stroke-width:1; }
+      .slot-card-act { fill:rgb(30,30,30); stroke:#2196f3; stroke-width:2; }
+      .ms-detected { fill:#4caf50; } .ms-empty { fill:rgba(255,255,255,.12); } .ms-unknown { fill:#fb8c00; } .ms-blocked { fill:#ff5252; }
+      .ms-lbl { fill:rgba(255,255,255,.7); font-size:6px; font-family:Roboto,sans-serif; text-anchor:middle; dominant-baseline:central; }
+      .gear-on { fill:#4caf50; } .gear-off { fill:rgba(255,255,255,.08); }
+      .gear-ico { fill:rgba(255,255,255,.5); font-size:9px; text-anchor:middle; dominant-baseline:central; }
       .tube { fill:none; stroke-width:2.5; stroke-linecap:round; }
-      .tube-idle { stroke:#222; } .tube-live { stroke-dasharray:8 4; }
+      .tube-idle { stroke:rgba(255,255,255,.06); } .tube-live { stroke-dasharray:8 4; }
       .flow { animation:yfl .7s linear infinite; } @keyframes yfl { to { stroke-dashoffset:-12; } }
       .fp { stroke:#fff; stroke-width:1.5; }
       .fp-lbl { fill:#8899bb; font-size:6px; font-family:system-ui; text-anchor:middle; }
-      .hot-box { fill:#252540; stroke:#444; stroke-width:1.5; }
-      .hot-lbl { fill:#aaa; font-size:10px; font-family:system-ui; text-anchor:middle; dominant-baseline:central; }
-      .ts-on { fill:#4CAF50; stroke:#66BB6A; stroke-width:1.5; } .ts-off { fill:#444; stroke:#555; stroke-width:1.5; }
-      .ts-lbl { fill:#fff; font-size:7px; font-family:system-ui; text-anchor:middle; dominant-baseline:central; }
-      .cut-on { fill:#E91E63; stroke:#C2185B; stroke-width:1.5; } .cut-off { fill:#333; stroke:#555; stroke-width:1; }
+      .hot-box { fill:rgb(30,30,30); stroke:rgba(255,255,255,.12); stroke-width:1.5; }
+      .hot-lbl { fill:rgba(255,255,255,.6); font-size:10px; font-family:Roboto,sans-serif; text-anchor:middle; dominant-baseline:central; }
+      .ts-on { fill:#4caf50; stroke:#66BB6A; stroke-width:1.5; } .ts-off { fill:rgba(255,255,255,.12); stroke:rgba(255,255,255,.2); stroke-width:1.5; }
+      .ts-lbl { fill:#fff; font-size:7px; font-family:Roboto,sans-serif; text-anchor:middle; dominant-baseline:central; }
+      .cut-on { fill:#ff4081; stroke:#f50057; stroke-width:1.5; } .cut-off { fill:rgba(255,255,255,.08); stroke:rgba(255,255,255,.2); stroke-width:1; }
       .cut-ico { fill:#fff; font-size:11px; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
-      .noz { fill:#e53935; }
-      .noz-t { fill:#ff8a80; font-size:11px; font-family:system-ui; text-anchor:middle; font-weight:700; }
+      .noz { fill:#ff5252; }
+      .noz-t { fill:#ff8a80; font-size:11px; font-family:Roboto,sans-serif; text-anchor:middle; font-weight:700; }
       .pulse { animation:ypu 1.4s ease-in-out infinite; } @keyframes ypu { 0%,100%{opacity:1;} 50%{opacity:.4;} }
-      .slot-txt { fill:#fff; font-size:10px; font-weight:600; font-family:system-ui; text-anchor:middle; }
-      .slot-sub { fill:#8899aa; font-size:8px; font-family:system-ui; text-anchor:middle; }
+      .slot-txt { fill:#fff; font-size:10px; font-weight:600; font-family:Roboto,sans-serif; text-anchor:middle; }
+      .slot-sub { fill:rgba(255,255,255,.5); font-size:8px; font-family:Roboto,sans-serif; text-anchor:middle; }
       #yms-root .yms-ctrls { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-top:12px; max-width:900px; margin-left:auto; margin-right:auto; }
-      #yms-root .yms-btn { background:#252545; border:1px solid #3a3a5a; color:#ccc; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:11px; font-family:system-ui; }
-      #yms-root .yms-btn:hover { background:#303060; border-color:#5c9ce6; color:#fff; }
-      #yms-root .yms-btn.active { background:#1a4a1a; border-color:#4CAF50; color:#81c784; }
-      #yms-root .yms-btn-init { background:#1a3a6a; border-color:#3a7ae6; color:#8ac4ff; font-weight:700; font-size:12px; }
-      #yms-root .yms-info { margin-top:10px; padding:6px 12px; background:#111828; border-radius:6px; font-size:10px; font-family:'Courier New',monospace; color:#556; text-align:center; max-width:900px; margin-left:auto; margin-right:auto; }
-      #yms-root .yms-info span { color:#64b5f6; }
+      #yms-root .yms-btn { background:rgb(30,30,30); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.7); padding:5px 12px; border-radius:4px; cursor:pointer; font-size:11px; font-family:Roboto,sans-serif; transition:all .15s; }
+      #yms-root .yms-btn:hover { background:rgb(40,40,40); border-color:#2196f3; color:#fff; }
+      #yms-root .yms-btn.active { background:rgb(20,40,20); border-color:#4caf50; color:#4caf50; }
+      #yms-root .yms-btn-init { background:rgb(13,71,161); border-color:#2196f3; color:#90caf9; font-weight:700; font-size:12px; }
+      #yms-root .yms-info { margin-top:10px; padding:6px 12px; background:rgb(30,30,30); border-radius:4px; font-size:10px; font-family:'Roboto Mono',monospace; color:rgba(255,255,255,.4); text-align:center; max-width:900px; margin-left:auto; margin-right:auto; }
+      #yms-root .yms-info span { color:#2196f3; }
     `;
     document.head.appendChild(style);
   }
@@ -329,12 +329,13 @@
 
     ymsNavItem = document.createElement('a');
     ymsNavItem.href = '#yms';
-    ymsNavItem.className = items[0].className.replace(/v-list-item--active/g,'');
+    // Copy exact classes from Mainsail nav items (remove active state)
+    ymsNavItem.className = items[0].className.replace(/v-list-item--active/g, '').replace(/active-nav-item/g, '').trim();
     ymsNavItem.style.textDecoration = 'none';
     ymsNavItem.innerHTML = `
-      <div class="v-list-item__icon" style="margin-right:24px;margin-left:8px;">${ICON}</div>
+      <div class="v-list-item__icon my-3 mr-3 menu-item-icon">${ICON}</div>
       <div class="v-list-item__content">
-        <div class="v-list-item__title" style="font-size:.8125rem;font-weight:500;letter-spacing:.089em;text-transform:uppercase">YMS Multi-Color</div>
+        <div class="v-list-item__title menu-item-title">YMS Multi-Color</div>
       </div>`;
 
     ymsNavItem.addEventListener('click', function(e) {
