@@ -246,31 +246,60 @@ function render() {
     // Entry dot
     svg.appendChild(el('circle',{cx:entryX,cy:entryY,r:2.5,fill:act?col:'#333'}));
 
-    // ── Filament position indicator ──
+    // ── Filament position indicator on tube ──
+    // 3 positions: inserted (top of feeder), standby (above hotend gate), loaded (in hotend to nozzle)
     if (st === 1 || act) {
-      let fp = 0;
-      if (act && D.toolhead_filament_detected) fp = 1.0;
-      else if (act && D.filament_path === 'bowden') fp = 0.85;
-      else if (st === 1) fp = 0.15;
+      let fp = 0;  // 0..1 along the tube bezier
+      let fpLabel = '';
+      if (act && D.toolhead_filament_detected) {
+        fp = 1.0; fpLabel = 'loaded';
+      } else if (act && D.filament_path === 'bowden') {
+        fp = 0.88; fpLabel = 'standby';
+      } else if (st === 1) {
+        fp = 0.12; fpLabel = 'inserted';
+      }
 
       if (fp > 0.01) {
-        const fx = tubeX1 + (entryX-tubeX1)*fp;
-        const fy = tubeY1 + (entryY-tubeY1)*fp;
+        // Lerp position on bezier (approximate)
+        const fx = tubeX1 + (entryX - tubeX1) * fp;
+        const fy = tubeY1 + (entryY - tubeY1) * fp;
 
-        // Filled tube portion
-        svg.appendChild(el('path',{
-          d:path, fill:'none', stroke:col, 'stroke-width':'2.5',
-          'stroke-linecap':'round', 'stroke-dasharray':`${fp*150} 999`, opacity:'0.4'
+        // Filled tube from top to filament tip (colored overlay)
+        svg.appendChild(el('path', {
+          d: path, fill: 'none', stroke: col, 'stroke-width': '3',
+          'stroke-linecap': 'round',
+          'stroke-dasharray': `${fp * 160} 9999`,
+          opacity: '0.5'
         }));
 
-        // Tip dot
-        svg.appendChild(el('circle',{cx:fx,cy:fy,r:4,fill:col,class:'fp'+(act?' pulse':'')}));
+        // Position dot markers along the tube
+        // Marker 1: top of feeder (always shown if detected)
+        if (fp >= 0.12) {
+          const topX = tubeX1 + (entryX - tubeX1) * 0.02;
+          const topY = tubeY1 + (entryY - tubeY1) * 0.02;
+          svg.appendChild(el('circle', {cx: topX, cy: topY, r: 3, fill: col, opacity: '0.7'}));
+        }
 
-        // Label
-        const labels = {0.15:'inserted',0.85:'standby',1.0:'loaded'};
-        const lbl = labels[fp];
-        if (lbl) {
-          svg.appendChild(el('text',{x:fx,y:fy-7,class:'fp-lbl'},lbl));
+        // Marker 2: standby position (just above hotend gate)
+        if (fp >= 0.88) {
+          const sbyX = tubeX1 + (entryX - tubeX1) * 0.88;
+          const sbyY = tubeY1 + (entryY - tubeY1) * 0.88;
+          svg.appendChild(el('circle', {cx: sbyX, cy: sbyY, r: 3.5, fill: col, opacity: '0.8'}));
+        }
+
+        // Filament tip (main indicator)
+        svg.appendChild(el('circle', {
+          cx: fx, cy: fy, r: 5, fill: col,
+          class: 'fp' + (act ? ' pulse' : ''),
+          stroke: '#fff', 'stroke-width': '1.5'
+        }));
+
+        // Label above tip
+        if (fpLabel) {
+          svg.appendChild(el('text', {
+            x: fx + (fx < centerX ? -10 : 10), y: fy - 8,
+            class: 'fp-lbl', 'text-anchor': fx < centerX ? 'end' : 'start'
+          }, fpLabel));
         }
       }
     }
@@ -281,14 +310,21 @@ function render() {
   svg.appendChild(el('text',{x:centerX,y:hotY+hotH/2,class:'hot-lbl'},'HOTEND'));
   svg.appendChild(el('text',{x:centerX,y:hotY+hotH-4,class:'hot-sub'},`${n}-input`));
 
-  // Vertical pipe from hotend to nozzle area
+  // Active slot color for hotend path
+  const activeCol = D.slot >= 0 ? '#' + (D.slot_color[D.slot] || 'CCC') : null;
+  const filLoaded = D.toolhead_filament_detected;
+  const printing = D.print_state === 'printing';
+
+  // Vertical pipe from hotend to TS area
   svg.appendChild(el('line',{
     x1:centerX, y1:hotY+hotH, x2:centerX, y2:tsY-10,
-    stroke:D.toolhead_filament_detected?'#4CAF50':'#333','stroke-width':'3'
+    stroke: filLoaded ? (activeCol || '#4CAF50') : '#333', 'stroke-width': '3',
+    class: printing ? 'flow' : '',
+    'stroke-dasharray': printing ? '6 3' : 'none'
   }));
 
   // ── Toolhead sensor ───────────────────────────────
-  svg.appendChild(el('circle',{cx:centerX-18,cy:tsY,r:8,class:D.toolhead_filament_detected?'ts-on':'ts-off'}));
+  svg.appendChild(el('circle',{cx:centerX-18,cy:tsY,r:8,class:filLoaded?'ts-on':'ts-off'}));
   svg.appendChild(el('text',{x:centerX-18,y:tsY,class:'ts-lbl'},'TS'));
 
   // ── Cutter ────────────────────────────────────────
@@ -300,17 +336,28 @@ function render() {
     svg.appendChild(cg);
   }
 
-  // Pipe to nozzle
+  // Pipe from TS/cutter to nozzle — colored when filament loaded, animated when printing
   svg.appendChild(el('line',{
-    x1:centerX,y1:tsY+10,x2:centerX,y2:nozY-10,
-    stroke:D.toolhead_filament_detected?'#e53935':'#333','stroke-width':'3'
+    x1:centerX, y1:tsY+10, x2:centerX, y2:nozY-10,
+    stroke: filLoaded ? (printing ? '#e53935' : (activeCol || '#4CAF50')) : '#333',
+    'stroke-width': '3',
+    class: printing ? 'flow' : '',
+    'stroke-dasharray': printing ? '6 3' : 'none'
   }));
 
-  // ── Nozzle ────────────────────────────────────────
+  // ── Nozzle — glows when printing ──────────────────
   svg.appendChild(el('polygon',{
     points:`${centerX-7},${nozY-8} ${centerX+7},${nozY-8} ${centerX+3},${nozY+8} ${centerX-3},${nozY+8}`,
-    class:'noz'
+    class:'noz', fill: printing ? '#ff1744' : '#e53935',
+    opacity: printing ? '1' : '0.7'
   }));
+  // Filament drip when printing
+  if (printing && activeCol) {
+    svg.appendChild(el('circle',{
+      cx:centerX, cy:nozY+nozY*0.02+12, r:2.5,
+      fill:activeCol, class:'pulse'
+    }));
+  }
   svg.appendChild(el('text',{x:centerX,y:nozY+22,class:'noz-t'},`${eT}\u00B0C`));
 }
 

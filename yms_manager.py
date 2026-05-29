@@ -73,8 +73,8 @@ class YmsManager:
         self.toolhead_detected = False
         self._toolhead_obj = None
 
-        # Cutter — declared in [yms_manager] config, not auto-detected
-        self.cutter_available = config.getboolean('cutter', False)
+        # Cutter — all Yumi printers have a cutter, default True
+        self.cutter_available = config.getboolean('cutter', True)
         self.cutter_enabled = False
 
         # Per-slot PRO data (heater/fan/temp for dryer-equipped YMS)
