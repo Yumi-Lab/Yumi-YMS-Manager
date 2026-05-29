@@ -44,6 +44,14 @@ uninstall() {
         info "Removed update manager from moonraker.conf"
     fi
 
+    # Remove Mainsail injection
+    MAINSAIL_DIR="${MAINSAIL_DIR:-${HOME}/mainsail}"
+    rm -f "${MAINSAIL_DIR}/yms_panel.html" "${MAINSAIL_DIR}/yms_inject.js"
+    if [ -f "${MAINSAIL_DIR}/index.html" ]; then
+        sed -i '/yms_inject.js/d' "${MAINSAIL_DIR}/index.html"
+        info "Cleaned Mainsail injection"
+    fi
+
     info "Uninstall complete."
     info "Manually remove [yms_manager] from printer.cfg if present."
     exit 0
@@ -104,9 +112,34 @@ UPDMGR
     fi
 fi
 
+# 4. Inject YMS panel into Mainsail
+MAINSAIL_DIR="${MAINSAIL_DIR:-${HOME}/mainsail}"
+if [ -d "${MAINSAIL_DIR}" ]; then
+    info "Injecting YMS panel into Mainsail..."
+
+    # Symlink panel + inject script into Mainsail static directory
+    ln -sf "${SRCDIR}/yms_panel.html" "${MAINSAIL_DIR}/yms_panel.html"
+    ln -sf "${SRCDIR}/yms_inject.js" "${MAINSAIL_DIR}/yms_inject.js"
+    info "  Linked yms_panel.html + yms_inject.js"
+
+    # Patch index.html to load our inject script (idempotent)
+    INDEX="${MAINSAIL_DIR}/index.html"
+    if [ -f "${INDEX}" ]; then
+        if ! grep -q 'yms_inject.js' "${INDEX}"; then
+            sed -i 's|</body>|    <script src="/yms_inject.js"></script>\n</body>|' "${INDEX}"
+            info "  Patched index.html with <script> tag"
+        else
+            info "  index.html already patched"
+        fi
+    fi
+else
+    warn "Mainsail not found at ${MAINSAIL_DIR}, skipping panel injection"
+fi
+
 # ── Done ───────────────────────────────────────────────────────────────
 
 echo ""
 info "Installation complete!"
 info "Restart Klipper to activate: sudo systemctl restart klipper"
+info "Refresh Mainsail to see YMS panel in sidebar"
 echo ""
