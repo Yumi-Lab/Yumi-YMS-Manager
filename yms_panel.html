@@ -7,19 +7,18 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #1a1a2e; color: #e0e0e0;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: transparent; color: rgba(255,255,255,.87);
+    font-family: Roboto, 'Segoe UI', system-ui, sans-serif;
     display: flex; flex-direction: column; align-items: center;
     min-height: 100vh; padding: 12px;
   }
   .panel {
-    background: #16213e; border-radius: 14px; padding: 16px;
+    background: transparent; border-radius: 0; padding: 16px;
     max-width: 960px; width: 100%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
 
   /* Header */
-  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #2a2a4a; }
+  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,.12); }
   .header h1 { font-size:15px; font-weight:600; color:#fff; }
   .badge { font-size:11px; padding:3px 10px; border-radius:10px; font-weight:500; }
   .badge-ready { background:#1b5e20; color:#81c784; }
@@ -32,8 +31,8 @@
   .feeder-svg { width:100%; height:auto; }
 
   /* Slot card */
-  .slot-card { fill:#222840; stroke:#3a3a5a; stroke-width:1; }
-  .slot-card-active { fill:#1a3050; stroke:#5c9ce6; stroke-width:2; }
+  .slot-card { fill:rgb(30,30,30); stroke:rgba(255,255,255,.12); stroke-width:1; }
+  .slot-card-active { fill:rgb(30,30,30); stroke:#2196f3; stroke-width:2; }
   .slot-clr { rx:2; }
   .slot-txt { fill:#fff; font-size:10px; font-weight:600; font-family:system-ui; text-anchor:middle; }
   .slot-sub { fill:#8899aa; font-size:8px; font-family:system-ui; text-anchor:middle; }
@@ -81,7 +80,7 @@
   /* Controls */
   .controls { display:flex; gap:5px; flex-wrap:wrap; margin-top:12px; justify-content:center; }
   .btn {
-    background:#252545; border:1px solid #3a3a5a; color:#ccc;
+    background:rgb(30,30,30); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.7);
     padding:5px 12px; border-radius:6px; cursor:pointer;
     font-size:11px; font-family:system-ui; transition:all .15s;
   }
@@ -95,7 +94,7 @@
 
   /* Info */
   .info {
-    margin-top:10px; padding:6px 12px; background:#111828; border-radius:6px;
+    margin-top:10px; padding:6px 12px; background:rgb(30,30,30); border-radius:6px;
     font-size:10px; font-family:'Courier New',monospace; color:#556; text-align:center;
   }
   .info span { color:#64b5f6; }
