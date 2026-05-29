@@ -324,6 +324,9 @@
     const items = list.querySelectorAll('a.v-list-item, .v-list-item');
     if (!items.length) return false;
 
+    // Prevent duplicate injection
+    if (list.querySelector('a[href="#yms"]')) return true;
+
     let insertBefore = null;
     items.forEach(item => { if (item.textContent.trim().toUpperCase()==='MACHINE') insertBefore=item; });
 
