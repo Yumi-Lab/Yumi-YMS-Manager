@@ -12,422 +12,485 @@
     color: #e0e0e0;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 16px;
   }
 
   .panel {
     background: #16213e;
     border-radius: 16px;
-    padding: 24px;
-    max-width: 900px;
+    padding: 20px;
+    max-width: 680px;
     width: 100%;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
 
+  /* ── Header ────────────────────────────────────────── */
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 1px solid #2a2a4a;
   }
-
-  .header h1 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #fff;
+  .header h1 { font-size: 16px; font-weight: 600; color: #fff; }
+  .badge {
+    font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 500;
   }
-
-  .header .status {
-    font-size: 13px;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-weight: 500;
-  }
-
-  .status-ready { background: #1b5e20; color: #81c784; }
-  .status-printing { background: #e65100; color: #ffcc80; }
-  .status-error { background: #b71c1c; color: #ef9a9a; }
-  .status-offline { background: #424242; color: #bdbdbd; }
-
-  .feeder-svg {
-    width: 100%;
-    height: auto;
-  }
-
-  /* SVG slot styling */
-  .slot-bg { fill: #2a2a4a; stroke: #3a3a5a; stroke-width: 1; rx: 6; }
-  .slot-bg.active { stroke: #fff; stroke-width: 2; }
-
-  .slot-color { rx: 4; }
-  .slot-label { fill: #fff; font-size: 11px; font-weight: 600; font-family: system-ui; }
-  .slot-material { fill: #aaa; font-size: 9px; font-family: system-ui; }
-  .slot-temp { fill: #888; font-size: 9px; font-family: system-ui; }
-
-  /* Motion sensor */
-  .sensor-circle { stroke-width: 2; }
-  .sensor-detected { fill: #4CAF50; stroke: #66BB6A; }
-  .sensor-empty { fill: #555; stroke: #666; }
-  .sensor-unknown { fill: #FF9800; stroke: #FFA726; }
-  .sensor-blocked { fill: #F44336; stroke: #EF5350; }
-
-  .sensor-label { fill: #ccc; font-size: 7px; font-family: system-ui; text-anchor: middle; }
-
-  /* Gear stepper */
-  .gear-rect { rx: 3; }
-  .gear-active { fill: #4CAF50; }
-  .gear-inactive { fill: #444; }
-  .gear-icon { fill: #fff; font-size: 12px; text-anchor: middle; }
-
-  /* PTFE tube */
-  .tube { fill: none; stroke-width: 3; stroke-linecap: round; }
-  .tube-inactive { stroke: #333; }
-  .tube-active { stroke-dasharray: 10 5; }
-
-  /* Flowing animation */
-  .flowing {
-    animation: filament-flow 0.8s linear infinite;
-  }
-  @keyframes filament-flow {
-    to { stroke-dashoffset: -15; }
-  }
-
-  /* Sensor pulse */
-  .pulse {
-    animation: sensor-pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes sensor-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  /* Hotend */
-  .hotend-body { fill: #333; stroke: #555; stroke-width: 1.5; }
-  .hotend-label { fill: #ccc; font-size: 10px; font-family: system-ui; text-anchor: middle; }
-  .hotend-entry { stroke: #555; stroke-width: 1; }
-  .hotend-entry-active { stroke-width: 2; }
-
-  /* Nozzle */
-  .nozzle { fill: #e53935; }
-  .nozzle-temp { fill: #ff8a80; font-size: 11px; font-family: system-ui; text-anchor: middle; font-weight: 600; }
-
-  /* Toolhead sensor */
-  .ts-circle { stroke-width: 2; }
-  .ts-detected { fill: #4CAF50; stroke: #66BB6A; }
-  .ts-empty { fill: #555; stroke: #666; }
-  .ts-label { fill: #fff; font-size: 7px; font-family: system-ui; text-anchor: middle; }
-
-  /* Cutter */
-  .cutter-rect { rx: 3; cursor: pointer; }
-  .cutter-on { fill: #E91E63; stroke: #C2185B; stroke-width: 1.5; }
-  .cutter-off { fill: #444; stroke: #555; stroke-width: 1; }
-  .cutter-icon { fill: #fff; font-size: 11px; text-anchor: middle; pointer-events: none; }
-  .cutter-unavailable { display: none; }
-
-  /* Mapping bar */
-  .mapping-bar {
-    margin-top: 16px;
-    padding: 12px;
-    background: #1a1a2e;
-    border-radius: 8px;
-    font-size: 12px;
-    font-family: 'Courier New', monospace;
-    color: #888;
-    text-align: center;
-  }
-  .mapping-bar span { color: #64b5f6; }
-
-  /* Connection indicator */
+  .badge-ready { background: #1b5e20; color: #81c784; }
+  .badge-printing { background: #e65100; color: #ffcc80; }
+  .badge-error { background: #b71c1c; color: #ef9a9a; }
+  .badge-off { background: #424242; color: #bdbdbd; }
   .conn-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; margin-right: 5px;
   }
   .conn-ok { background: #4CAF50; }
   .conn-fail { background: #F44336; }
+
+  /* ── SVG ────────────────────────────────────────────── */
+  .feeder-svg { width: 100%; height: auto; }
+
+  /* Slot row */
+  .slot-bg { fill: #222840; stroke: #3a3a5a; stroke-width: 1; }
+  .slot-bg-active { fill: #1a3050; stroke: #5c9ce6; stroke-width: 2; }
+  .slot-color-bar { rx: 2; }
+  .slot-label { fill: #fff; font-size: 11px; font-weight: 600; font-family: system-ui; }
+  .slot-sub { fill: #8899aa; font-size: 9px; font-family: system-ui; }
+
+  /* Sensor dot */
+  .ms-detected { fill: #4CAF50; }
+  .ms-empty { fill: #444; }
+  .ms-unknown { fill: #FF9800; }
+  .ms-blocked { fill: #F44336; }
+  .ms-label { fill: #ddd; font-size: 7px; font-family: system-ui; text-anchor: middle; dominant-baseline: central; }
+
+  /* Gear icon */
+  .gear-active { fill: #4CAF50; }
+  .gear-idle { fill: #3a3a4a; }
+  .gear-icon { fill: #ccc; font-size: 11px; text-anchor: middle; dominant-baseline: central; }
+
+  /* Feeder tube */
+  .tube { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+  .tube-idle { stroke: #2a2a3a; }
+  .tube-live { stroke-dasharray: 8 4; }
+  .flow-anim { animation: flow 0.7s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -12; } }
+
+  /* Hotend block */
+  .hotend-box { fill: #252540; stroke: #444; stroke-width: 1.5; }
+  .hotend-label { fill: #aaa; font-size: 10px; font-family: system-ui; text-anchor: middle; dominant-baseline: central; }
+  .entry-dot {}
+
+  /* Toolhead sensor */
+  .ts-on { fill: #4CAF50; stroke: #66BB6A; stroke-width: 1.5; }
+  .ts-off { fill: #444; stroke: #555; stroke-width: 1.5; }
+  .ts-label { fill: #fff; font-size: 7px; font-family: system-ui; text-anchor: middle; dominant-baseline: central; }
+
+  /* Cutter */
+  .cut-on { fill: #E91E63; stroke: #C2185B; stroke-width: 1.5; }
+  .cut-off { fill: #3a3a4a; stroke: #555; stroke-width: 1; }
+  .cut-icon { fill: #fff; font-size: 12px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+
+  /* Nozzle */
+  .nozzle-shape { fill: #e53935; }
+  .nozzle-temp { fill: #ff8a80; font-size: 12px; font-family: system-ui; text-anchor: middle; font-weight: 700; }
+
+  /* Pulse for active sensor */
+  .pulse { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+
+  /* ── Controls bar ──────────────────────────────────── */
+  .controls {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 14px; justify-content: center;
+  }
+  .ctrl-btn {
+    background: #252545; border: 1px solid #3a3a5a; color: #ccc;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-family: system-ui; transition: all .15s;
+  }
+  .ctrl-btn:hover { background: #303060; border-color: #5c9ce6; color: #fff; }
+  .ctrl-btn.active { background: #1a4a1a; border-color: #4CAF50; color: #81c784; }
+
+  /* ── Info bar ──────────────────────────────────────── */
+  .info-bar {
+    margin-top: 12px; padding: 8px 14px;
+    background: #111828; border-radius: 8px;
+    font-size: 11px; font-family: 'Courier New', monospace;
+    color: #667; text-align: center;
+  }
+  .info-bar span { color: #64b5f6; }
+  .info-bar .sep { color: #333; margin: 0 6px; }
 </style>
 </head>
 <body>
 
-<div class="panel" id="panel">
+<div class="panel">
   <div class="header">
-    <h1><span class="conn-dot" id="connDot"></span>YMS Multi-Color System</h1>
-    <div class="status" id="statusBadge">Connecting...</div>
+    <h1><span class="conn-dot" id="connDot"></span>YMS Multi-Color</h1>
+    <div class="badge" id="badge">...</div>
   </div>
 
-  <svg id="feederSvg" class="feeder-svg" viewBox="0 0 760 50" preserveAspectRatio="xMidYMid meet">
-    <!-- Dynamically populated -->
-  </svg>
+  <svg id="svg" class="feeder-svg" viewBox="0 0 600 400"></svg>
 
-  <div class="mapping-bar" id="mappingBar">Mapping: ---</div>
+  <div class="controls" id="controls"></div>
+  <div class="info-bar" id="info">---</div>
 </div>
 
 <script>
-// ── Configuration ──────────────────────────────────────────────────────
-const MOONRAKER_URL = window.location.hostname || 'localhost';
-const MOONRAKER_PORT = 7125;
-const POLL_INTERVAL = 1000;
+// ── Config ──────────────────────────────────────────────────────────────
+const HOST = window.location.hostname || 'localhost';
+const PORT = 7125;
+const API  = `http://${HOST}:${PORT}`;
 
-// ── Layout constants ───────────────────────────────────────────────────
-const SLOT_W = 70, SLOT_H = 32, SLOT_GAP = 6;
-const SENSOR_R = 7;
-const GEAR_W = 20, GEAR_H = 18;
-const HOTEND_W = 50, HOTEND_H = 0; // Height computed dynamically
-const NOZZLE_W = 16, NOZZLE_H = 20;
-const TUBE_START_X = 0; // Computed per slot
-const HOTEND_X = 0; // Computed
-const MARGIN = 20;
+// ── Layout ──────────────────────────────────────────────────────────────
+const M  = 16;          // margin
+const SW = 260;         // slot row width
+const SH = 28;          // slot row height
+const SG = 5;           // slot gap
+const SR = 5.5;         // sensor radius
+const GW = 18, GH = 16; // gear rect
 
-// ── State ──────────────────────────────────────────────────────────────
-let ymsData = null;
-let extruderTemp = 0;
+// ── State ───────────────────────────────────────────────────────────────
+let D = null, eTemp = 0;
 
-// ── SVG helpers ────────────────────────────────────────────────────────
-function svgEl(tag, attrs, text) {
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
-  if (text !== undefined) el.textContent = text;
-  return el;
+// ── SVG helpers ─────────────────────────────────────────────────────────
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, a, txt) {
+  const e = document.createElementNS(NS, tag);
+  if (a) for (const [k,v] of Object.entries(a)) e.setAttribute(k, v);
+  if (txt !== undefined) e.textContent = txt;
+  return e;
 }
 
-function sensorClass(status, active) {
-  if (status === 2) return 'sensor-blocked';
-  if (status === 1) return 'sensor-detected' + (active ? ' pulse' : '');
-  if (status === 0) return 'sensor-empty';
-  return 'sensor-unknown';
+function msClass(s, act) {
+  if (s === 2) return 'ms-blocked';
+  if (s === 1) return 'ms-detected' + (act ? ' pulse' : '');
+  if (s === 0) return 'ms-empty';
+  return 'ms-unknown';
 }
 
-// ── Render ─────────────────────────────────────────────────────────────
-function render(data) {
-  const svg = document.getElementById('feederSvg');
+// ── Render ──────────────────────────────────────────────────────────────
+function render() {
+  const svg = document.getElementById('svg');
   svg.innerHTML = '';
-
-  if (!data || !data.enabled) {
-    svg.setAttribute('viewBox', '0 0 760 60');
-    svg.appendChild(svgEl('text', {x: 380, y: 35, fill: '#666', 'font-size': '14',
-      'text-anchor': 'middle', 'font-family': 'system-ui'}, 'YMS not detected'));
+  if (!D || !D.enabled) {
+    svg.setAttribute('viewBox', '0 0 600 80');
+    svg.appendChild(el('text', {x:300,y:45,fill:'#555','font-size':'14','text-anchor':'middle','font-family':'system-ui'}, 'YMS not detected'));
     return;
   }
 
-  const n = data.num_slots;
-  const slotTotalH = n * (SLOT_H + SLOT_GAP) - SLOT_GAP;
+  const n  = D.num_slots;
+  const slotsH = n * (SH + SG) - SG;
 
-  // Layout
-  const slotStartX = MARGIN;
-  const sensorX = slotStartX + SLOT_W + 12;
-  const gearX = sensorX + SENSOR_R * 2 + 10;
-  const tubeStartX = gearX + GEAR_W + 5;
-  const hotendX = tubeStartX + 200;
-  const hotendH = slotTotalH + 20;
-  const hotendY = MARGIN - 10;
-  const tsX = hotendX + 40;
-  const cutterX = tsX + 25;
-  const nozzleX = cutterX + (data.cutter_available ? 30 : 10);
-  const svgW = nozzleX + NOZZLE_W + MARGIN;
-  const svgH = slotTotalH + MARGIN * 2;
+  // Vertical layout: slots on top, tubes going down, hotend at bottom
+  const slotX = M;
+  const slotStartY = M;
 
+  // Hotend dimensions
+  const hotW = Math.min(n * 24, 220);
+  const hotH = 44;
+  const hotX = M + (SW - hotW) / 2;
+  const hotY = slotStartY + slotsH + 100;
+
+  // Cutter + TS + nozzle below hotend
+  const tsY   = hotY + hotH + 20;
+  const cutY  = tsY;
+  const nozY  = tsY + 35;
+
+  const svgW = SW + M * 2;
+  const svgH = nozY + 30 + M;
   svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
 
-  // Draw each slot
+  // ── Draw slots ────────────────────────────────────────────────
   for (let i = 0; i < n; i++) {
-    const y = MARGIN + i * (SLOT_H + SLOT_GAP);
-    const cy = y + SLOT_H / 2;
-    const color = '#' + (data.slot_color[i] || 'CCCCCC');
-    const active = data.slot === i;
-    const status = data.slot_status[i];
-    const name = data.slot_name[i] || `YMS-${i+1}`;
-    const mat = data.slot_material[i] || '?';
-    const temp = data.slot_temperature[i] || 210;
+    const y  = slotStartY + i * (SH + SG);
+    const cy = y + SH / 2;
+    const col  = '#' + (D.slot_color[i] || 'CCC');
+    const act  = D.slot === i;
+    const st   = D.slot_status[i];
+    const name = D.slot_name[i] || `YMS-${i+1}`;
+    const mat  = D.slot_material[i] || '?';
+    const tmp  = D.slot_temperature[i] || 210;
 
-    // Slot background
-    const bg = svgEl('rect', {
-      x: slotStartX, y: y, width: SLOT_W, height: SLOT_H,
-      class: 'slot-bg' + (active ? ' active' : '')
-    });
-    svg.appendChild(bg);
-
-    // Color indicator
-    svg.appendChild(svgEl('rect', {
-      x: slotStartX + 3, y: y + 3, width: 8, height: SLOT_H - 6,
-      fill: color, class: 'slot-color'
+    // Background
+    svg.appendChild(el('rect', {
+      x: slotX, y, width: SW, height: SH, rx: 6,
+      class: act ? 'slot-bg-active' : 'slot-bg'
     }));
 
-    // Slot name
-    svg.appendChild(svgEl('text', {
-      x: slotStartX + 16, y: cy - 2, class: 'slot-label'
-    }, name));
+    // Color bar
+    svg.appendChild(el('rect', {
+      x: slotX + 3, y: y + 3, width: 6, height: SH - 6, fill: col,
+      class: 'slot-color-bar'
+    }));
+
+    // Name
+    svg.appendChild(el('text', {x: slotX + 14, y: cy + 1, class: 'slot-label'}, name));
 
     // Material + temp
-    svg.appendChild(svgEl('text', {
-      x: slotStartX + 16, y: cy + 10, class: 'slot-material'
-    }, `${mat} ${temp}°`));
+    svg.appendChild(el('text', {
+      x: slotX + 70, y: cy + 1, class: 'slot-sub'
+    }, `${mat} ${tmp}\u00B0`));
 
-    // Motion sensor circle
-    svg.appendChild(svgEl('circle', {
-      cx: sensorX + SENSOR_R, cy: cy, r: SENSOR_R,
-      class: 'sensor-circle ' + sensorClass(status, active)
+    // Motion sensor
+    const msX = slotX + 140;
+    svg.appendChild(el('circle', {cx: msX, cy, r: SR, class: msClass(st, act)}));
+    svg.appendChild(el('text', {x: msX, y: cy, class: 'ms-label'}, 'MS'));
+
+    // Gear
+    const gx = slotX + 168;
+    svg.appendChild(el('rect', {
+      x: gx, y: cy - GH/2, width: GW, height: GH, rx: 3,
+      class: act ? 'gear-active' : 'gear-idle'
     }));
-    svg.appendChild(svgEl('text', {
-      x: sensorX + SENSOR_R, y: cy + 3, class: 'sensor-label'
-    }, 'MS'));
+    svg.appendChild(el('text', {x: gx + GW/2, y: cy, class: 'gear-icon'}, '\u2699'));
 
-    // Gear stepper
-    svg.appendChild(svgEl('rect', {
-      x: gearX, y: cy - GEAR_H / 2, width: GEAR_W, height: GEAR_H,
-      class: 'gear-rect ' + (active ? 'gear-active' : 'gear-inactive')
-    }));
-    svg.appendChild(svgEl('text', {
-      x: gearX + GEAR_W / 2, y: cy + 4, class: 'gear-icon'
-    }, '\u2699'));
+    // Tool mapping label
+    const mapIdx = D.tool_to_slot_map ? D.tool_to_slot_map.indexOf(i) : i;
+    const tLabel = mapIdx >= 0 ? `T${mapIdx}` : '';
+    svg.appendChild(el('text', {
+      x: slotX + SW - 10, y: cy + 1,
+      fill: act ? '#5c9ce6' : '#556',
+      'font-size': '10', 'text-anchor': 'end', 'font-family': 'system-ui', 'font-weight': '600'
+    }, tLabel));
 
-    // PTFE tube — line from gear to hotend entry
-    const entryY = hotendY + 10 + (i / (n - 1 || 1)) * (hotendH - 20);
-    const tubeColor = active ? color : undefined;
-    const tube = svgEl('line', {
-      x1: tubeStartX, y1: cy,
-      x2: hotendX, y2: entryY,
-      class: 'tube ' + (active ? 'tube-active flowing' : 'tube-inactive'),
+    // ── Feeder tube: from gear down to hotend entry ──
+    const tubeX1 = gx + GW / 2;
+    const tubeY1 = cy + GH / 2 + 2;
+    // Entry point on hotend top — spread evenly
+    const entryX = hotX + 12 + (i / (n - 1 || 1)) * (hotW - 24);
+    const entryY = hotY;
+
+    // Curved path: down from gear, then curve to hotend entry
+    const midY = tubeY1 + (entryY - tubeY1) * 0.5;
+    const path = `M${tubeX1},${tubeY1} C${tubeX1},${midY} ${entryX},${midY} ${entryX},${entryY}`;
+
+    const tube = el('path', {
+      d: path,
+      class: 'tube ' + (act ? 'tube-live flow-anim' : 'tube-idle')
     });
-    if (tubeColor) tube.setAttribute('stroke', tubeColor);
+    if (act) tube.setAttribute('stroke', col);
     svg.appendChild(tube);
 
-    // Hotend entry dot
-    svg.appendChild(svgEl('circle', {
-      cx: hotendX, cy: entryY, r: 3,
-      fill: active ? color : '#444',
-      class: 'hotend-entry' + (active ? ' hotend-entry-active' : '')
+    // Entry dot on hotend
+    svg.appendChild(el('circle', {
+      cx: entryX, cy: entryY, r: 3,
+      fill: act ? col : '#333', stroke: act ? col : '#444', 'stroke-width': 1
     }));
+
+    // ── Filament position indicator on tube ──
+    // Shows where the filament physically is along the path
+    if (st === 1 || act) {
+      let fPos = 0; // 0=top (just inserted), 0.5=standby above hotend, 1.0=in hotend
+      if (act && D.toolhead_filament_detected) {
+        fPos = 1.0; // In hotend / nozzle
+      } else if (act && D.filament_path === 'bowden') {
+        fPos = 0.85; // Standby just above hotend
+      } else if (st === 1) {
+        fPos = 0.15; // Just detected at top, after motor
+      }
+
+      // Compute position along the bezier curve
+      // Approximate: lerp between tube start and tube end
+      const fx = tubeX1 + (entryX - tubeX1) * fPos;
+      const fy = tubeY1 + (entryY - tubeY1) * fPos;
+
+      // Filament tip marker
+      svg.appendChild(el('circle', {
+        cx: fx, cy: fy, r: 4.5,
+        fill: col, stroke: '#fff', 'stroke-width': 1.5,
+        class: act ? 'pulse' : ''
+      }));
+
+      // Filled portion of tube (from top to filament position)
+      if (fPos > 0.05) {
+        const fillPath = `M${tubeX1},${tubeY1} C${tubeX1},${midY} ${entryX},${midY} ${entryX},${entryY}`;
+        svg.appendChild(el('path', {
+          d: fillPath,
+          fill: 'none', stroke: col, 'stroke-width': 2.5,
+          'stroke-linecap': 'round',
+          'stroke-dasharray': `${fPos * 200} 999`,
+          opacity: 0.5
+        }));
+      }
+
+      // Position label
+      const labels = {0.15: 'inserted', 0.85: 'standby', 1.0: 'loaded'};
+      const lbl = labels[fPos] || '';
+      if (lbl && act) {
+        svg.appendChild(el('text', {
+          x: fx + 8, y: fy + 3,
+          fill: '#99aacc', 'font-size': '7', 'font-family': 'system-ui'
+        }, lbl));
+      }
+    }
   }
 
-  // Hotend body
-  svg.appendChild(svgEl('rect', {
-    x: hotendX - 5, y: hotendY, width: HOTEND_W, height: hotendH,
-    rx: 8, class: 'hotend-body'
+  // ── Hotend block ──────────────────────────────────────────────
+  svg.appendChild(el('rect', {
+    x: hotX, y: hotY, width: hotW, height: hotH, rx: 8, class: 'hotend-box'
   }));
-  svg.appendChild(svgEl('text', {
-    x: hotendX + HOTEND_W / 2 - 5, y: hotendY + hotendH / 2 - 5, class: 'hotend-label'
+  svg.appendChild(el('text', {
+    x: hotX + hotW / 2, y: hotY + hotH / 2 - 5, class: 'hotend-label'
   }, 'HOTEND'));
-  svg.appendChild(svgEl('text', {
-    x: hotendX + HOTEND_W / 2 - 5, y: hotendY + hotendH / 2 + 8, class: 'hotend-label',
-    'font-size': '8'
-  }, `${n}-in`));
+  svg.appendChild(el('text', {
+    x: hotX + hotW / 2, y: hotY + hotH / 2 + 8,
+    fill: '#667', 'font-size': '8', 'font-family': 'system-ui', 'text-anchor': 'middle'
+  }, `${n}-input`));
 
-  // Toolhead sensor
-  const tsCy = hotendY + hotendH / 2;
-  svg.appendChild(svgEl('circle', {
-    cx: tsX, cy: tsCy, r: 9,
-    class: 'ts-circle ' + (data.toolhead_filament_detected ? 'ts-detected' : 'ts-empty')
+  // ── Vertical line from hotend to TS/cutter/nozzle ─────────────
+  const centerX = hotX + hotW / 2;
+  svg.appendChild(el('line', {
+    x1: centerX, y1: hotY + hotH,
+    x2: centerX, y2: tsY - 10,
+    stroke: D.toolhead_filament_detected ? '#4CAF50' : '#333', 'stroke-width': 3
   }));
-  svg.appendChild(svgEl('text', {
-    x: tsX, y: tsCy + 3, class: 'ts-label'
-  }, 'TS'));
 
-  // Cutter
-  if (data.cutter_available) {
-    const cutG = svgEl('g', {transform: `translate(${cutterX}, ${tsCy})`, style: 'cursor:pointer'});
-    cutG.appendChild(svgEl('rect', {
-      x: -10, y: -12, width: 20, height: 24,
-      class: 'cutter-rect ' + (data.cutter_enabled ? 'cutter-on' : 'cutter-off')
+  // ── Toolhead sensor ───────────────────────────────────────────
+  const tsX = centerX - 20;
+  svg.appendChild(el('circle', {
+    cx: tsX, cy: tsY, r: 9,
+    class: D.toolhead_filament_detected ? 'ts-on' : 'ts-off'
+  }));
+  svg.appendChild(el('text', {x: tsX, y: tsY, class: 'ts-label'}, 'TS'));
+
+  // ── Cutter ────────────────────────────────────────────────────
+  if (D.cutter_available) {
+    const cxX = centerX + 20;
+    const cg = el('g', {style: 'cursor:pointer'});
+    cg.appendChild(el('rect', {
+      x: cxX - 11, y: cutY - 13, width: 22, height: 26, rx: 4,
+      class: D.cutter_enabled ? 'cut-on' : 'cut-off'
     }));
-    cutG.appendChild(svgEl('text', {
-      x: 0, y: 5, class: 'cutter-icon'
-    }, '\u2702'));
-    cutG.onclick = toggleCutter;
-    svg.appendChild(cutG);
+    cg.appendChild(el('text', {x: cxX, y: cutY, class: 'cut-icon'}, '\u2702'));
+    cg.onclick = toggleCutter;
+    svg.appendChild(cg);
   }
 
-  // Nozzle
-  const nzX = nozzleX;
-  const nzY = tsCy;
-  const nozzle = svgEl('polygon', {
-    points: `${nzX - 6},${nzY - 10} ${nzX + 6},${nzY - 10} ${nzX + 3},${nzY + 10} ${nzX - 3},${nzY + 10}`,
-    class: 'nozzle'
-  });
-  svg.appendChild(nozzle);
-  svg.appendChild(svgEl('text', {
-    x: nzX, y: nzY + 25, class: 'nozzle-temp'
-  }, `${extruderTemp}°C`));
-
-  // Line from TS to nozzle
-  svg.appendChild(svgEl('line', {
-    x1: tsX + 9, y1: tsCy, x2: nzX - 8, y2: nzY,
-    stroke: data.toolhead_filament_detected ? '#4CAF50' : '#444',
-    'stroke-width': 3
+  // ── Line from TS/cutter to nozzle ─────────────────────────────
+  svg.appendChild(el('line', {
+    x1: centerX, y1: tsY + 10,
+    x2: centerX, y2: nozY - 12,
+    stroke: D.toolhead_filament_detected ? '#e53935' : '#333', 'stroke-width': 3
   }));
+
+  // ── Nozzle ────────────────────────────────────────────────────
+  const nW = 14, nH = 18;
+  svg.appendChild(el('polygon', {
+    points: `${centerX-nW/2},${nozY-nH/2} ${centerX+nW/2},${nozY-nH/2} ${centerX+4},${nozY+nH/2} ${centerX-4},${nozY+nH/2}`,
+    class: 'nozzle-shape'
+  }));
+  svg.appendChild(el('text', {
+    x: centerX, y: nozY + nH/2 + 14, class: 'nozzle-temp'
+  }, `${eTemp}\u00B0C`));
 }
 
-// ── Status badge ───────────────────────────────────────────────────────
-function updateBadge(data) {
-  const badge = document.getElementById('statusBadge');
-  const dot = document.getElementById('connDot');
+// ── Controls ────────────────────────────────────────────────────────────
+function renderControls() {
+  const box = document.getElementById('controls');
+  box.innerHTML = '';
+  if (!D || !D.enabled) return;
 
-  if (!data) {
-    badge.textContent = 'Offline';
-    badge.className = 'status status-offline';
+  // T buttons (manual mode: T0=detect, T1-T7=YMS-1..7)
+  const btnDetect = mkBtn('T0 Detect', () => gcode('T0'));
+  box.appendChild(btnDetect);
+
+  for (let i = 0; i < D.num_slots; i++) {
+    const ti = i + 1;
+    const btn = mkBtn(`T${ti} ${D.slot_name[i]}`, () => gcode(`T${ti}`));
+    if (D.slot === i) btn.classList.add('active');
+    box.appendChild(btn);
+  }
+
+  // Separator
+  box.appendChild(Object.assign(document.createElement('div'), {style:'width:100%'}));
+
+  // Utility buttons
+  box.appendChild(mkBtn('TOFF', () => gcode('TOFF')));
+  box.appendChild(mkBtn('Check Slots', () => gcode('YMS_CHECK_SLOTS')));
+  box.appendChild(mkBtn('Status', () => gcode('YMS_STATUS')));
+  if (D.cutter_available) {
+    const cBtn = mkBtn(D.cutter_enabled ? 'Cutter: ON' : 'Cutter: OFF', toggleCutter);
+    if (D.cutter_enabled) cBtn.classList.add('active');
+    box.appendChild(cBtn);
+  }
+}
+
+function mkBtn(label, onclick) {
+  const b = document.createElement('button');
+  b.className = 'ctrl-btn';
+  b.textContent = label;
+  b.onclick = onclick;
+  return b;
+}
+
+// ── Badge + info ────────────────────────────────────────────────────────
+function updateUI() {
+  const badge = document.getElementById('badge');
+  const dot   = document.getElementById('connDot');
+  const info  = document.getElementById('info');
+
+  if (!D) {
+    badge.textContent = 'Offline'; badge.className = 'badge badge-off';
     dot.className = 'conn-dot conn-fail';
+    info.innerHTML = '---';
     return;
   }
-
   dot.className = 'conn-dot conn-ok';
 
-  if (data.print_state === 'printing') {
-    badge.textContent = 'Printing';
-    badge.className = 'status status-printing';
-  } else if (data.enabled) {
-    badge.textContent = `Ready \u2022 ${data.num_slots} slots`;
-    badge.className = 'status status-ready';
+  if (D.print_state === 'printing') {
+    badge.textContent = 'Printing'; badge.className = 'badge badge-printing';
+  } else if (D.enabled) {
+    badge.textContent = `Ready \u2022 ${D.num_slots} slots`;
+    badge.className = 'badge badge-ready';
   } else {
-    badge.textContent = 'No YMS';
-    badge.className = 'status status-offline';
+    badge.textContent = 'No YMS'; badge.className = 'badge badge-off';
   }
 
-  // Mapping bar
-  document.getElementById('mappingBar').innerHTML =
-    'Mapping: <span>' + (data.mapping || '---') + '</span>' +
-    ' \u2022 Filament: <span>' + data.filament + '</span>' +
-    ' (' + data.filament_path + ')';
+  const activeSlot = D.slot >= 0 ? D.slot_name[D.slot] : 'none';
+  info.innerHTML = [
+    `Active: <span>${activeSlot}</span>`,
+    `Filament: <span>${D.filament}</span> (${D.filament_path})`,
+    `Mapping: <span>${D.mapping || '---'}</span>`,
+  ].join('<span class="sep">|</span>');
 }
 
-// ── API ────────────────────────────────────────────────────────────────
-async function fetchData() {
+// ── API ─────────────────────────────────────────────────────────────────
+async function poll() {
   try {
-    const url = `http://${MOONRAKER_URL}:${MOONRAKER_PORT}/printer/objects/query?yms_manager&extruder`;
-    const resp = await fetch(url);
-    const json = await resp.json();
-    const status = json.result.status;
+    const r = await fetch(`${API}/printer/objects/query?yms_manager&extruder`);
+    const j = await r.json();
+    D = j.result.status.yms_manager || null;
+    eTemp = Math.round(j.result.status.extruder?.temperature || 0);
+  } catch(e) { D = null; }
+  render();
+  renderControls();
+  updateUI();
+}
 
-    ymsData = status.yms_manager || null;
-    extruderTemp = Math.round(status.extruder?.temperature || 0);
-
-    render(ymsData);
-    updateBadge(ymsData);
-  } catch (e) {
-    ymsData = null;
-    render(null);
-    updateBadge(null);
-  }
+async function gcode(cmd) {
+  try {
+    await fetch(`${API}/printer/gcode/script`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({script: cmd})
+    });
+  } catch(e) {}
+  setTimeout(poll, 500);
 }
 
 async function toggleCutter() {
-  if (!ymsData) return;
-  const enable = ymsData.cutter_enabled ? 0 : 1;
-  try {
-    await fetch(`http://${MOONRAKER_URL}:${MOONRAKER_PORT}/printer/gcode/script`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({script: `YMS_CUTTER ENABLE=${enable}`})
-    });
-  } catch (e) {}
+  if (!D) return;
+  await gcode(`YMS_CUTTER ENABLE=${D.cutter_enabled ? 0 : 1}`);
 }
 
-// ── Init ───────────────────────────────────────────────────────────────
-fetchData();
-setInterval(fetchData, POLL_INTERVAL);
+// ── Init ────────────────────────────────────────────────────────────────
+poll();
+setInterval(poll, 1000);
 </script>
 </body>
 </html>
