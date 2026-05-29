@@ -156,7 +156,10 @@ function render() {
   const svgW = Math.max(totalSlotsW + M*2, hotW + M*4);
   const slotsX = (svgW - totalSlotsW) / 2;
   const slotsY = M;
-  const tubeTopY = slotsY + cardH;
+  // Max card height (PRO cards are taller)
+  const hasPro = D.slot_is_pro && D.slot_is_pro.some(v => v);
+  const maxCardH = hasPro ? cardH + 18 : cardH;
+  const tubeTopY = slotsY + maxCardH;
   const hotX = (svgW - hotW) / 2;
   const hotY = tubeTopY + tubeZone;
   const centerX = svgW / 2;
@@ -176,11 +179,23 @@ function render() {
     const name = D.slot_name[i]||`YMS-${i+1}`;
     const mat = D.slot_material[i]||'?';
 
+    const isPro = D.slot_is_pro && D.slot_is_pro[i];
+    const thisCardH = isPro ? cardH + 18 : cardH;
+
     // Card bg
-    svg.appendChild(el('rect',{x,y,width:cardW,height:cardH,rx:8,class:act?'slot-card-active':'slot-card'}));
+    svg.appendChild(el('rect',{x,y,width:cardW,height:thisCardH,rx:8,class:act?'slot-card-active':'slot-card'}));
 
     // Color bar top
     svg.appendChild(el('rect',{x:x+4,y:y+4,width:cardW-8,height:6,fill:col,rx:3}));
+
+    // PRO badge
+    if (isPro) {
+      svg.appendChild(el('rect',{x:x+cardW-22,y:y+2,width:20,height:10,rx:3,fill:'#E65100'}));
+      svg.appendChild(el('text',{
+        x:x+cardW-12,y:y+9,fill:'#fff','font-size':'6','text-anchor':'middle',
+        'font-family':'system-ui','font-weight':'700'
+      },'PRO'));
+    }
 
     // Name
     svg.appendChild(el('text',{x:cx,y:y+22,class:'slot-txt'},name));
@@ -188,24 +203,37 @@ function render() {
     // Material
     svg.appendChild(el('text',{x:cx,y:y+33,class:'slot-sub'},mat));
 
+    // PRO dryer temp (if applicable)
+    if (isPro) {
+      const dTemp = D.slot_dryer_temp ? D.slot_dryer_temp[i] : 0;
+      const dTarget = D.slot_dryer_target ? D.slot_dryer_target[i] : 0;
+      const dStr = dTarget > 0 ? `\uD83D\uDD25 ${dTemp}/${dTarget}\u00B0` : `\uD83D\uDD25 ${dTemp}\u00B0`;
+      svg.appendChild(el('text',{
+        x:cx, y:y+43, fill: dTarget > 0 ? '#FF9800' : '#665',
+        'font-size':'8','text-anchor':'middle','font-family':'system-ui'
+      }, dStr));
+    }
+
     // Motion sensor
-    svg.appendChild(el('circle',{cx:cx-12,cy:y+48,r:5,class:msC(st,act)}));
-    svg.appendChild(el('text',{x:cx-12,y:y+48,class:'ms-lbl'},'MS'));
+    const msY = isPro ? y + 58 : y + 48;
+    svg.appendChild(el('circle',{cx:cx-12,cy:msY,r:5,class:msC(st,act)}));
+    svg.appendChild(el('text',{x:cx-12,y:msY,class:'ms-lbl'},'MS'));
 
     // Gear
-    svg.appendChild(el('rect',{x:cx+4,y:y+42,width:14,height:12,rx:3,class:act?'gear-on':'gear-off'}));
-    svg.appendChild(el('text',{x:cx+11,y:y+48,class:'gear-ico'},'\u2699'));
+    svg.appendChild(el('rect',{x:cx+4,y:msY-6,width:14,height:12,rx:3,class:act?'gear-on':'gear-off'}));
+    svg.appendChild(el('text',{x:cx+11,y:msY,class:'gear-ico'},'\u2699'));
 
     // Tool label
     const mi = D.tool_to_slot_map ? D.tool_to_slot_map.indexOf(i) : i;
     svg.appendChild(el('text',{
-      x:cx, y:y+65, fill:act?'#5c9ce6':'#445',
+      x:cx, y:y+thisCardH-3, fill:act?'#5c9ce6':'#445',
       'font-size':'8','text-anchor':'middle','font-family':'system-ui','font-weight':'600'
     }, mi>=0?`T${mi}`:''));
 
     // ── Tube from slot bottom to hotend top ──
+    const tubeY0 = y + thisCardH;
     const tubeX1 = cx;
-    const tubeY1 = y + cardH;
+    const tubeY1 = tubeY0;
     const entryX = hotX + 10 + (i/(n-1||1)) * (hotW-20);
     const entryY = hotY;
     const midY = tubeY1 + (entryY-tubeY1)*0.5;

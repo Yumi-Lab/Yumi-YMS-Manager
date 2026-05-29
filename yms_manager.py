@@ -74,9 +74,14 @@ class YmsManager:
         self._toolhead_obj = None
 
         # Cutter — declared in [yms_manager] config, not auto-detected
-        # It's a hardware tool activated by moving to a position
         self.cutter_available = config.getboolean('cutter', False)
         self.cutter_enabled = False
+
+        # Per-slot PRO data (heater/fan/temp for dryer-equipped YMS)
+        self.slot_is_pro = []
+        self.slot_dryer_temp = []
+        self.slot_dryer_target = []
+        self._dryer_heaters = {}
 
         # Internal refs
         self._sensors = {}
@@ -123,7 +128,10 @@ class YmsManager:
         # 3. Detect toolhead switch
         self._detect_toolhead()
 
-        # 4. Init slot arrays with defaults
+        # 4. Detect PRO dryer heaters (heater_generic YMS-N-PRO)
+        self._detect_pro_slots()
+
+        # 5. Init slot arrays with defaults
         self._init_slots()
 
         # 6. Load persisted data (colors, mapping, cutter state)
@@ -134,9 +142,10 @@ class YmsManager:
             self._poll, self.reactor.NOW)
 
         sensor_count = sum(1 for s in self._sensors.values() if s)
+        pro_count = sum(1 for v in self.slot_is_pro if v)
         logging.info(
-            "YMS Manager: %d slots, %d sensors, toolhead=%s, cutter=%s",
-            self.num_slots, sensor_count,
+            "YMS Manager: %d slots (%d PRO), %d sensors, toolhead=%s, cutter=%s",
+            self.num_slots, pro_count, sensor_count,
             self.toolhead_sensor_name or 'none',
             'yes' if self.cutter_available else 'no')
 
@@ -189,6 +198,29 @@ class YmsManager:
                 self._toolhead_obj = obj
                 return
 
+
+    def _detect_pro_slots(self):
+        """Detect YMS PRO dryer heaters (heater_generic YMS-N-PRO)."""
+        self.slot_is_pro = [False] * self.num_slots
+        self.slot_dryer_temp = [0.0] * self.num_slots
+        self.slot_dryer_target = [0.0] * self.num_slots
+        self._dryer_heaters = {}
+        for i in range(self.num_slots):
+            name = 'YMS-%d-PRO' % (i + 1)
+            # Try heater_generic YMS-N-PRO
+            obj = self.printer.lookup_object('heater_generic %s' % name, None)
+            if obj:
+                self.slot_is_pro[i] = True
+                self._dryer_heaters[i] = {'name': name, 'obj': obj}
+                logging.info("YMS Manager: slot %d is PRO (dryer: %s)", i, name)
+            else:
+                # Also try lowercase variants
+                name_lc = 'yms-%d-pro' % (i + 1)
+                obj = self.printer.lookup_object('heater_generic %s' % name_lc, None)
+                if obj:
+                    self.slot_is_pro[i] = True
+                    self._dryer_heaters[i] = {'name': name_lc, 'obj': obj}
+                    logging.info("YMS Manager: slot %d is PRO (dryer: %s)", i, name_lc)
 
     # ── Slot initialization ─────────────────────────────────────────────
 
@@ -323,6 +355,15 @@ class YmsManager:
             except Exception:
                 pass
 
+        # PRO dryer temperatures
+        for i, dryer in self._dryer_heaters.items():
+            try:
+                hs = dryer['obj'].get_status(eventtime)
+                self.slot_dryer_temp[i] = round(hs.get('temperature', 0), 1)
+                self.slot_dryer_target[i] = round(hs.get('target', 0), 1)
+            except Exception:
+                pass
+
         return eventtime + 1.
 
     # ── Filament path logic ─────────────────────────────────────────────
@@ -367,6 +408,9 @@ class YmsManager:
             'toolhead_filament_detected': self.toolhead_detected,
             'cutter_available':         self.cutter_available,
             'cutter_enabled':           self.cutter_enabled,
+            'slot_is_pro':              list(self.slot_is_pro),
+            'slot_dryer_temp':          list(self.slot_dryer_temp),
+            'slot_dryer_target':        list(self.slot_dryer_target),
             'tool_to_slot_map':         list(self.tool_to_slot_map),
             'mapping':                  self.mapping_raw,
             'filament':                 self._filament_state(),
