@@ -19,6 +19,7 @@
   let ymsDiv = null;
   let ymsNavItem = null;
   let pollTimer = null;
+  let savedActive = [];
   let D = null, eT = 0;
 
   // ── SVG icon ─────────────────────────────────────────────────────────
@@ -98,6 +99,9 @@
       #yms-root .yms-btn-init { background:rgb(13,71,161); border-color:#2196f3; color:#90caf9; font-weight:700; font-size:12px; }
       #yms-root .yms-info { margin-top:10px; padding:6px 12px; background:rgb(30,30,30); border-radius:4px; font-size:10px; font-family:'Roboto Mono',monospace; color:rgba(255,255,255,.4); text-align:center; max-width:900px; margin-left:auto; margin-right:auto; }
       #yms-root .yms-info span { color:#2196f3; }
+      /* Mainsail's blue selection bar, replicated reliably on our nav item
+         (its scoped .active-nav-item[data-v-...] rule won't match our element). */
+      a[href="#yms"].v-list-item--active { border-right: 4px solid var(--v-primary-base, #2196f3) !important; }
     `;
     document.head.appendChild(style);
   }
@@ -118,7 +122,14 @@
   }
 
   // ── Show / Hide ──────────────────────────────────────────────────────
+  // Close sibling Yumi panels (ANC web / native) when we open, and close
+  // ourselves when one of them opens — they don't know our nav item exists.
+  window.addEventListener('yumi-panel-open', e => {
+    if (e.detail !== 'yms' && ymsActive) hideYms(false);
+  });
+
   function showYms() {
+    window.dispatchEvent(new CustomEvent('yumi-panel-open', { detail: 'yms' }));
     if (!ymsDiv) ymsDiv = createRoot();
 
     // Hide ALL Mainsail visible content
@@ -127,7 +138,8 @@
 
     ymsDiv.classList.add('yms-show');
     ymsActive = true;
-    if (ymsNavItem) ymsNavItem.classList.add('v-list-item--active');
+    if (ymsNavItem) ymsNavItem.classList.add('v-list-item--active', 'active-nav-item');
+    deactivateOthers();
 
     // Adjust position based on sidebar width
     adjustPos();
@@ -137,7 +149,28 @@
     if (!pollTimer) pollTimer = setInterval(poll, 1000);
   }
 
-  function hideYms() {
+  // Clear the active state Mainsail still holds on its current nav item so two
+  // items don't show the blue bar at once. restore=true (toggling YMS off) puts
+  // it back; clicking another nav item passes false and lets Mainsail's router
+  // activate the new one.
+  function deactivateOthers() {
+    savedActive = [];
+    document.querySelectorAll('.v-navigation-drawer .v-list-item--active, .v-navigation-drawer .active-nav-item')
+      .forEach(el => {
+        if (el === ymsNavItem) return;
+        const had = [];
+        ['v-list-item--active', 'active-nav-item'].forEach(c => {
+          if (el.classList.contains(c)) { el.classList.remove(c); had.push(c); }
+        });
+        if (had.length) savedActive.push([el, had]);
+      });
+  }
+  function restoreOthers() {
+    savedActive.forEach(([el, had]) => had.forEach(c => el.classList.add(c)));
+    savedActive = [];
+  }
+
+  function hideYms(restore) {
     if (ymsDiv) ymsDiv.classList.remove('yms-show');
 
     // Restore ALL Mainsail content
@@ -145,7 +178,8 @@
     document.querySelectorAll('.v-navigation-drawer--right').forEach(el => el.style.display = '');
 
     ymsActive = false;
-    if (ymsNavItem) ymsNavItem.classList.remove('v-list-item--active');
+    if (ymsNavItem) ymsNavItem.classList.remove('v-list-item--active', 'active-nav-item');
+    if (restore) restoreOthers(); else savedActive = [];
 
     // Stop polling
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
@@ -334,6 +368,12 @@
     ymsNavItem.href = '#yms';
     // Copy exact classes from Mainsail nav items (remove active state)
     ymsNavItem.className = items[0].className.replace(/v-list-item--active/g, '').replace(/active-nav-item/g, '').trim();
+    // Copy Vue scoped-style attributes (e.g. data-v-640efc00) so Mainsail's
+    // scoped rule `.active-nav-item[data-v-...]{border-right:4px solid primary}`
+    // applies — without it the blue selection bar never shows on our item.
+    items[0].getAttributeNames().forEach(a => {
+      if (a.indexOf('data-v-') === 0) ymsNavItem.setAttribute(a, items[0].getAttribute(a));
+    });
     ymsNavItem.style.textDecoration = 'none';
     ymsNavItem.innerHTML = `
       <div class="v-list-item__icon my-3 mr-3 menu-item-icon">${ICON}</div>
@@ -343,20 +383,20 @@
 
     ymsNavItem.addEventListener('click', function(e) {
       e.preventDefault(); e.stopPropagation();
-      ymsActive ? hideYms() : showYms();
+      showYms();
     });
 
     if (insertBefore) insertBefore.parentNode.insertBefore(ymsNavItem, insertBefore);
     else list.appendChild(ymsNavItem);
 
     // Clicking other nav items restores Mainsail
-    items.forEach(item => item.addEventListener('click', () => { if (ymsActive) hideYms(); }));
+    items.forEach(item => item.addEventListener('click', () => { if (ymsActive) hideYms(false); }));
 
     return true;
   }
 
   // ── Keyboard (Ctrl+Y) ───────────────────────────────────────────────
-  document.addEventListener('keydown', e => { if (e.ctrlKey&&e.key==='y'){e.preventDefault();ymsActive?hideYms():showYms();} });
+  document.addEventListener('keydown', e => { if (e.ctrlKey&&e.key==='y'){e.preventDefault();ymsActive?hideYms(true):showYms();} });
 
   // ── Init ─────────────────────────────────────────────────────────────
   async function init() {
