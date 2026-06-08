@@ -83,13 +83,25 @@ info "Linking yms_manager.py to Klipper extras..."
 ln -sf "${SRCDIR}/yms_manager.py" "${KLIPPER_HOME}/klippy/extras/yms_manager.py"
 info "  → ${KLIPPER_HOME}/klippy/extras/yms_manager.py"
 
-# 2. Add [yms_manager] section to printer.cfg if not present
-if [ -f "${PRINTER_CFG}" ]; then
-    if ! grep -q '^\[yms_manager\]' "${PRINTER_CFG}"; then
-        echo -e "\n[yms_manager]" >> "${PRINTER_CFG}"
-        info "Added [yms_manager] section to printer.cfg"
+# 2. Do NOT inject [yms_manager] into printer.cfg.
+# The section belongs to YMS-equipped machines only; their device-specific
+# printer.cfg (shipped by yumi-config) already declares it at the top. This
+# installer runs on EVERY pad (YUMI_SYNC bootstrap-clones the repo), so adding
+# the section here would pollute non-YMS pads with a useless config block.
+#
+# Self-heal: an older install.sh appended "[yms_manager]" with >> on non-YMS
+# pads, so it landed AFTER the trailing #*# SAVE_CONFIG block. Remove it in that
+# broken case only. On real YMS machines the section sits at the top (before the
+# autosave block) and is left untouched.
+if [ -f "${PRINTER_CFG}" ] && grep -q '^\[yms_manager\]' "${PRINTER_CFG}"; then
+    yms_line="$(grep -n '^\[yms_manager\]' "${PRINTER_CFG}" | head -n1 | cut -d: -f1)"
+    save_line="$(grep -n 'SAVE_CONFIG' "${PRINTER_CFG}" | head -n1 | cut -d: -f1)"
+    if [ -n "${save_line}" ] && [ "${yms_line}" -gt "${save_line}" ]; then
+        sed -i '/^\[yms_manager\]$/d' "${PRINTER_CFG}"
+        chown pi:pi "${PRINTER_CFG}"
+        info "Removed stray [yms_manager] appended after SAVE_CONFIG (non-YMS pad)"
     else
-        info "[yms_manager] already in printer.cfg"
+        info "[yms_manager] present and correctly placed — left untouched"
     fi
 fi
 
